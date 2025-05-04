@@ -64,11 +64,9 @@ To clean up the build-related files (APK, AAB, platforms, node_modules, etc.), r
 
 ## Notes
 
-    Make sure your GDevelop project has been exported as an Android project before running the script.
-
-    If you don't specify a command, the script will show usage instructions.
+Make sure your GDevelop project has been exported as an Android project before running the script.
+If you don't specify a command, the script will show usage instructions.
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
