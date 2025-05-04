@@ -31,7 +31,7 @@ Before using the script, make sure you have the following installed:
     npm install -g cordova
     ```
 
-3. (Optional) Set up your keystore environment variables:
+3. Set up your keystore environment variables:
     ```bash
     export KEYSTORE_PATH="your_keystore_path"
     export KEYSTORE_PASSWORD="your_keystore_password"
