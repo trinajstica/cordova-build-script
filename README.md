@@ -22,7 +22,7 @@ Before using the script, make sure you have the following installed:
 
 1. Clone this repository to your local machine:
     ```bash
-    git clone https://github.com/your-username/cordova-build-script.git
+    git clone https://github.com/trinajstica/cordova-build-script.git
     cd cordova-build-script
     ```
 
