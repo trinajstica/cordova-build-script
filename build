@@ -1,0 +1,125 @@
+#!/bin/bash
+
+# === Build Script for Cordova Android Apps ===
+#
+# Author: barko <barko@generacija.si>
+# License: MIT
+# Repository: https://github.com/trinajstica/cordova-build-script
+#
+# Usage:
+#   ./build apk     # Build APK package
+#   ./build aab     # Build AAB package
+#   ./build clean   # Clean build-related directories and files
+#
+# Requirements:
+# - Cordova CLI
+# - Properly configured keystore environment variables:
+#   KEYSTORE_PATH, KEYSTORE_PASSWORD, KEYSTORE_ALIAS
+#
+# Example:
+#   ./build apk       # Build APK
+#   ./build clean     # Clean build files quietly (default)
+#
+# Note:
+# - If no parameter is provided, the script will show usage instructions.
+
+#export KEYSTORE_PASSWORD="your_keystore_password"
+#export KEYSTORE_ALIAS="your_keystore_alias"
+#export KEYSTORE_PATH="your_keystore_path"
+
+set -e
+
+# === Path Configuration ===
+export ANDROID_HOME="$HOME/Android/sdk"
+export JAVA_HOME="$HOME/Android/jdk"
+export PATH="$HOME/Android/gradle-8.13/bin:$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools:$PATH"
+
+# === Show help if no parameters are provided ===
+if [ $# -eq 0 ]; then
+    echo "Usage: build [options]"
+    echo "Options:"
+    echo "  apk    - Build for Android (APK)"
+    echo "  aab    - Build for Android (AAB)"
+    echo "  clean  - Clean directories"
+    exit 0
+fi
+
+# === Handle parameters ===
+case "$1" in
+    "apk")
+        echo "Building APK..."
+
+        # Check Cordova and project
+        if ! command -v cordova &> /dev/null; then
+            echo "Cordova not installed. Installing..."
+            sudo npm install -g cordova
+        fi
+
+        if [ ! -d "platforms/android" ]; then
+            echo "Adding Android platform..."
+            cordova platform add android
+        fi
+
+        if [ ! -d "www" ]; then
+            echo "Error: www directory does not exist."
+            exit 1
+        fi
+
+        cordova build android --release -- --keystore="$KEYSTORE_PATH" --storePassword="$KEYSTORE_PASSWORD" --alias="$KEYSTORE_ALIAS" --password="$KEYSTORE_PASSWORD" --packageType apk
+
+        APK_PATH="platforms/android/app/build/outputs/apk/release/app-release.apk"
+        if [ -f "$APK_PATH" ]; then
+            mv "$APK_PATH" ./app.apk
+            echo "✅ APK built: ./app.apk"
+        else
+            echo "❌ Error building APK."
+        fi
+        ;;
+
+    "aab")
+        echo "Building AAB..."
+
+        # Check Cordova and project
+        if ! command -v cordova &> /dev/null; then
+            echo "Cordova not installed. Installing..."
+            sudo npm install -g cordova
+        fi
+
+        if [ ! -d "platforms/android" ]; then
+            echo "Adding Android platform..."
+            cordova platform add android
+        fi
+
+        if [ ! -d "www" ]; then
+            echo "Error: www directory does not exist."
+            exit 1
+        fi
+
+        cordova build android --release -- --keystore="$KEYSTORE_PATH" --storePassword="$KEYSTORE_PASSWORD" --alias="$KEYSTORE_ALIAS" --password="$KEYSTORE_PASSWORD" --packageType bundle
+
+        AAB_PATH="platforms/android/app/build/outputs/bundle/release/app-release.aab"
+        if [ -f "$AAB_PATH" ]; then
+            mv "$AAB_PATH" ./app.aab
+            echo "✅ AAB built: ./app.aab"
+        else
+            echo "❌ Error building AAB."
+        fi
+        ;;
+
+    "clean")
+        echo "Cleaning..."
+        [ -f "app.aab" ] && rm "app.aab"
+        [ -f "app.apk" ] && rm "app.apk"
+        [ -d "node_modules" ] && rm -rf "node_modules"
+        [ -d "platforms" ] && rm -rf "platforms"
+        [ -d "plugins" ] && rm -rf "plugins"
+        [ -f "package-lock.json" ] && rm "package-lock.json"
+        echo "Cleaning complete!"
+        ;;
+
+    *)
+        echo "Invalid parameter: $1"
+        echo "Usage: build [apk|aab|clean]"
+        exit 1
+        ;;
+esac
